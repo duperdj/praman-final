@@ -14,6 +14,7 @@ import type {
   Signal,
   SlaState,
 } from "@/lib/contracts";
+import { Prisma } from "@prisma/client";
 import { evaluateSla } from "@/lib/sla";
 import { db } from "@/lib/db";
 
@@ -66,7 +67,7 @@ export async function persistApplication(
   sla: SlaState,
   extra?: { serviceType?: string; formData?: string }
 ): Promise<void> {
-  await db.$transaction(async (tx) => {
+  await db.$transaction(async (tx: Prisma.TransactionClient) => {
     await tx.application.create({
       data: {
         id: a.id,
@@ -130,7 +131,7 @@ export async function updateDecision(
   decision: Decision,
   sla: SlaState,
 ): Promise<void> {
-  await db.$transaction(async (tx) => {
+  await db.$transaction(async (tx: Prisma.TransactionClient) => {
     const existing = await tx.decision.findUnique({
       where: { applicationId: a.id },
       select: { id: true },
