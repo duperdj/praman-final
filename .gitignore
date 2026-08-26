@@ -33,3 +33,5 @@ next-env.d.ts
 
 # nested duplicate copy — not part of the app
 /praman-main/
+
+.vercel
