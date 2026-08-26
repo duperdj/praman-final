@@ -1,0 +1,3 @@
+# lib/registries — the 5 mock state data sources, each behind an interface so
+# the honesty page can list them (Samagra, Ration, Land, PriorCertificate,
+# Aadhaar). Lane A, Wave 2. See Spec.txt §7.

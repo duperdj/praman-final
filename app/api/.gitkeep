@@ -1,0 +1,3 @@
+# app/api — route handlers (Lane A, Wave 2+). Planned per SOHAM-LANE-B-BRIEF §6:
+# POST /api/applications, GET /api/applications/:id, POST /api/dev/tick,
+# GET /api/officer/queue, plus /api/dev/reset and /api/dev/evaluate.

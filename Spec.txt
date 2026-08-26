@@ -1,0 +1,247 @@
+# Praman — rebuilding the MP income certificate service
+
+You are the engineering lead on a hackathon project. Read this whole file before writing any code. Build it in the phases defined at the bottom, **one phase per session**. Do not start a phase you were not asked to start.
+
+---
+
+## 1. The brief we are answering
+
+An Indian public-service website has to be rebuilt — frontend *and* backend — so that it solves a real problem rather than just looking nicer. Judged on: problem quality, whether the main journey actually works, usability, product thinking, end-to-end thinking (backend/infra/process, not just UI), and honesty about what is mocked.
+
+## 2. The service we are rebuilding
+
+**Income certificate (आय प्रमाण पत्र) on `mpedistrict.gov.in`**, the Madhya Pradesh Lok Seva Guarantee portal.
+
+Real-world facts this build is grounded in — treat these as fixed requirements, not suggestions:
+
+- Madhya Pradesh passed India's first Right to Public Services law in 2010 (Lok Sevaon ke Pradan ki Guarantee Adhiniyam). It sets statutory delivery deadlines, a penalty of ₹250 per day of delay payable by the designated officer, a two-tier appeal, and compensation to the citizen out of the penalty.
+- The published deadline for this service is **3 working days** (urban and rural), or **1 working day** under "Samadhan Ek Din Seva".
+- The only required document is **a self-declaration of income**. Nothing else.
+- It still routes through **Patwari field verification**, then **Tehsildar approval**.
+- Fees: **free online**, ₹20 at Lok Seva Kendra / MPOnline / CSC.
+- Applying requires **Aadhaar + a Samagra ID with current eKYC**.
+- Certificate is **valid one year**, then you reapply.
+- Current status vocabulary includes "Pending at Patwari" and "Pending at Tehsildar".
+- The current login page serves citizens, kiosk operators and officers through **one form** with password + image captcha + a service dropdown defaulted to a kiosk campaign.
+
+## 3. The thesis
+
+> The state already promises this certificate in 3 days and already owes you ₹250 a day if it is late. The software neither keeps the promise nor tells you the promise exists. And it cannot keep it, because every application — including the trivially clean ones — is queued behind a manual field visit for a document whose only input is the applicant's own declaration.
+
+So the redesign is **not** "add a countdown." It is:
+
+1. **Verify against data the state already holds** instead of eyeballing a declaration.
+2. **Auto-issue the clean cases in seconds**; send a human only to the anomalies, with a stated reason.
+3. **Make the statutory clock a first-class object** — visible, enforced, and generating the appeal automatically on breach.
+4. **Rebuild the citizen surface** for a low-end Android phone on a slow connection.
+
+Points 1 and 2 are what make point 3 honest. Say this in that order everywhere.
+
+## 4. Non-negotiables
+
+- **All data is synthetic.** No real Aadhaar, Samagra, or personal data anywhere in the repo. Aadhaar-like numbers must fail the Verhoeff checksum so they can never collide with real ones. Say so in code comments and on the honesty page.
+- **Citizens never see a password or a captcha.** Phone + OTP only (mocked, and the OTP is displayed on screen in dev). Officers and kiosk users get a separate login route.
+- **Hindi is the default language.** English is a toggle. Every user-facing string goes through a dictionary from Phase 0 — do not hardcode strings in components.
+- **Must work at 360px wide** and be usable one-handed. Tap targets ≥48px.
+- **Must work on a slow connection.** Server-render by default, minimal client JS, no layout shift, no blocking webfonts beyond the two specified.
+- **Nothing silently pends.** Every state transition has a named owner, a timestamp, and a next action visible to the citizen.
+- **Every automated decision is explainable.** If the engine flags an application, it stores a human-readable reason in Hindi and English, and the citizen sees it.
+
+## 5. Stack
+
+Unless the user overrides:
+
+- **Next.js (App Router) + TypeScript**
+- **Tailwind CSS**
+- **Prisma + SQLite** (file-based, zero setup; swapping `DATABASE_URL` to Postgres is the only change needed to deploy)
+- **Zod** for all input validation
+- **Vitest** for engine unit tests
+- No auth library. No state management library. No component library — build the small set of primitives we need.
+
+Keep dependencies minimal. Every added package must be justified in `PROGRESS.md`.
+
+## 6. Repo conventions
+
+```
+/app                    routes
+/components             UI primitives + feature components
+/lib
+  /engine               issuance engine — pure functions, no I/O
+  /sla                  working-day math, breach detection
+  /registries           mock state data sources, each behind an interface
+  /i18n                 hi.ts, en.ts
+/prisma                 schema + seed
+/docs
+  PROGRESS.md           append-only log, one section per phase
+  DECISIONS.md          why we chose X over Y
+  MOCKED.md             the honesty ledger
+```
+
+**Rules for every phase:**
+
+1. Before starting, read `docs/PROGRESS.md` to see where things stand.
+2. Keep files under ~200 lines. Split rather than grow.
+3. `lib/engine` and `lib/sla` must be **pure** — no DB, no fetch, no Date.now() (pass time in). This makes them testable and is what we demo.
+4. Run `npm run build` and `npm test` before declaring a phase done. Fix what breaks.
+5. End the phase by appending to `docs/PROGRESS.md`: what was built, what files, what's stubbed, what the next phase needs.
+6. Commit with message `phase-N: <summary>`.
+7. **Stop. Do not begin the next phase.** Report what's done and wait.
+
+---
+
+## 7. Data model
+
+```
+Citizen          id, phone, name_hi, name_en, aadhaarRef (fake), samagraMemberId
+Family           samagraFamilyId, headCitizenId, district, tehsil, isUrban, ekycStatus, ekycUpdatedAt
+FamilyMember     familyId, citizenId, relation, dob
+Application      id, refNo, citizenId, familyId, purpose, declaredIncome, incomeSources[],
+                 isSamadhanEkDin, submittedAt, dueAt, state, currentOwnerRole, currentOwnerId
+Decision         applicationId, engineVersion, riskScore, outcome, signals[] (json), decidedAt
+Certificate      id, applicationId, issuedAt, validUntil, payload (json), signature (mock), revokedAt
+SlaEvent         applicationId, type (DUE_SET|WARNED|BREACHED), at
+Appeal           id, applicationId, tier (FIRST|SECOND), filedAt, againstOfficerId, status
+PenaltyLedger    appealId, officerId, ratePerDay (250), daysAccrued, amount, status
+Officer          id, name, role (PATWARI|TEHSILDAR|APPELLATE), district, tehsil
+AuditLog         entity, entityId, actorType, actorId, action, before, after, at
+VerificationReq  id, certificateId, requesterName, question, answer, at   -- downstream consumers
+```
+
+### Mock registries (synthetic, seeded)
+
+Each behind an interface in `lib/registries` so the honesty page can list them:
+
+- `SamagraRegistry` — family composition, eKYC status, name/DOB as recorded
+- `RationRegistry` — family → card category (AAY / BPL / APL)
+- `LandRegistry` — family → total holding in hectares
+- `PriorCertificateRegistry` — previous income certificates for this family
+- `AadhaarRegistry` — name/DOB for mismatch checks, OTP issuance
+
+---
+
+## 8. The issuance engine (`lib/engine`) — the core of the project
+
+Pure function: `evaluate(application, registrySnapshot) → Decision`
+
+Each rule returns a `Signal { code, severity, weightedScore, reasonHi, reasonEn, evidence }`.
+
+**Rules to implement:**
+
+| Code | Check | Severity |
+| --- | --- | --- |
+| `RATION_CONTRADICTION` | Family holds AAY/BPL card but declares income above the BPL band | hard |
+| `PRIOR_SWING` | Declared income differs from last year's certificate by >40% | soft |
+| `LAND_VS_INCOME` | Land holding above threshold but declared income implausibly low | soft |
+| `THRESHOLD_HUGGING` | Declared income lands within 2% just under the purpose's cutoff (EWS ₹8L, scholarship ₹2.5L) | soft |
+| `EKYC_STALE` | Samagra eKYC missing or older than 12 months | blocking |
+| `IDENTITY_MISMATCH` | Name or DOB differs between Aadhaar and Samagra records | blocking |
+| `DUPLICATE_ACTIVE` | An unexpired certificate already exists for this family this year | blocking |
+| `SOURCE_INCOMPLETE` | Declared sources don't account for known income (e.g. land but no agricultural income listed) | soft |
+
+**Outcomes:**
+
+- `AUTO_ISSUE` — score < 20 and no hard/blocking signal. Certificate issued immediately, state → `ISSUED`.
+- `FIELD_VERIFY` — score 20–60. State → `PENDING_PATWARI`, with the triggering signals attached so the Patwari knows what to check. The citizen sees the same reason.
+- `NEEDS_INPUT` — any blocking signal. State → `AWAITING_CITIZEN`, with the exact fix ("your Samagra eKYC is out of date — here's how to update it"). The SLA clock **pauses** while waiting on the citizen and resumes on resubmission. Log the pause.
+- `REJECT` — hard contradiction with evidence. Citizen sees the contradiction and can appeal or correct.
+
+Write unit tests for every rule and for the four outcome paths. This is the part judges should be able to poke at.
+
+---
+
+## 9. The SLA engine (`lib/sla`)
+
+- `computeDueAt(submittedAt, isUrban, isSamadhanEkDin, holidays) → Date` — working days only, excluding Sundays and a seeded MP holiday list. 3 days standard, 1 day for Samadhan Ek Din.
+- `slaState(now, dueAt, pausedIntervals) → { state, workingDaysRemaining, breachDays }` where state ∈ `ON_TIME | DUE_TODAY | BREACHED`.
+- `penaltyFor(breachDays) → amount` at ₹250/day.
+- On breach: emit `SlaEvent(BREACHED)`, create a draft `Appeal` against the current owner, start `PenaltyLedger` accrual, and notify the citizen (mock SMS row + in-app).
+
+The appeal is **drafted automatically**. The citizen taps once to file it. Never make them find the appellate authority themselves.
+
+Expose `POST /api/tick` which advances the clock for demo purposes, plus a dev-only time-travel control in the UI. Do not use real cron.
+
+---
+
+## 10. Design direction
+
+**Pin the subject first:** this is a legal instrument, not a consumer app. It should feel like a document that carries statutory weight — closer to a stamped receipt than to a fintech dashboard — while being readable by someone in bright sunlight on a ₹6,000 phone.
+
+**Palette** — 5 tokens, no gradients, high contrast throughout:
+- `ink` #14140F — text and rules
+- `paper` #FBFAF6 — page
+- `seal` #1B4D3E — institutional deep green, used for issued/valid states and the masthead rule
+- `clock` #B8860B — the statutory clock in progress
+- `breach` #A32D2D — deadline passed
+
+**Type** — two webfonts maximum, both with Devanagari coverage:
+- Display: **Mukta**, 700 — headings and the reference number
+- Body: **Noto Sans Devanagari**, 400/500
+- Reference numbers, dates and amounts: tabular figures, letter-spaced
+
+**Signature element — the statutory clock.** Not a spinner or a progress bar. A horizontal track of exactly 3 segments (or 1 for Samadhan Ek Din), one per working day, each labelled with its date. Segments fill as days pass. The current segment carries the **name and designation of the officer who holds the file right now**. When the track overflows past the last segment, it turns `breach` and a penalty counter appears beneath it, ticking in rupees.
+
+This is the thing the judges should remember. Spend the design budget here and keep everything else quiet.
+
+**Explicitly avoid:** cream + serif + terracotta, dark mode with an acid accent, and dense broadsheet columns. Those are defaults, not decisions.
+
+**Copy rules:** active voice, plain verbs, sentence case. Never "Submit" — say what happens ("Apply for certificate"). Errors state what went wrong and the exact fix. An officer's name appears wherever an officer is responsible for something.
+
+---
+
+## 11. Demo scenarios (seed exactly these)
+
+| # | Persona | Story |
+| --- | --- | --- |
+| 1 | Sunita, Indore (urban) | Clean case. Auto-issued in ~8 seconds. Certificate downloadable. Shows the new baseline. |
+| 2 | Ramesh, Dewas (rural) | `LAND_VS_INCOME` soft flag → routed to Patwari with the reason stated. Officer approves. Issued within SLA. Shows targeted human review. |
+| 3 | Kamla, Sehore | Officer sits on it. Clock runs out. Breach fires, appeal is drafted, penalty starts accruing. Shows enforcement. |
+| 4 | Arjun, Bhopal | `EKYC_STALE` blocking signal → `AWAITING_CITIZEN` with the fix, SLA paused. He fixes it, resubmits, auto-issues. Shows that blocked ≠ abandoned. |
+| 5 | — | Downstream: a mock scholarship portal asks "is this family under ₹2.5 lakh?" and receives a signed yes/no. No PDF upload. Shows why issuance-as-data matters. |
+
+Plus 40 filler applications spread across tehsils so the accountability dashboard has real shape.
+
+---
+
+## 12. Phases
+
+Each phase is one session. Each ends runnable, built, tested, committed, logged.
+
+### Phase 0 — foundation
+Scaffold Next.js + TS + Tailwind + Prisma/SQLite. Design tokens as CSS variables and Tailwind theme. Fonts loaded and subset. i18n dictionary with `hi` and `en` plus the toggle. UI primitives: Button, Field, Card, StatusPill, `StatutoryClock` (static, no logic yet). A `/styleguide` route rendering all of them. No features.
+**Done when:** `/styleguide` renders in both languages at 360px and 1440px, build passes.
+
+### Phase 1 — backend: data + registries
+Prisma schema for the full model. Seed script generating the five personas plus filler, with fake-but-plausible synthetic data. The five registry interfaces with in-memory/SQLite implementations. A `/api/dev/reset` route to reseed.
+**Done when:** seed runs clean, `docs/MOCKED.md` lists every registry and what it stands in for.
+
+### Phase 2 — backend: the issuance engine
+`lib/engine` as pure functions: all eight rules, scoring, the four outcomes, bilingual reasons. Full Vitest coverage including edge cases. A `/api/dev/evaluate` route that takes a JSON application and returns the Decision, so it can be demoed without the UI.
+**Done when:** every rule has a passing test and each of the four outcomes is reachable.
+
+### Phase 3 — backend: SLA, appeals, audit
+Working-day math with the MP holiday list. `slaState`, pause/resume on `AWAITING_CITIZEN`, breach detection, auto-drafted appeal, penalty ledger. `POST /api/tick`. AuditLog written on every transition. Mock SMS as DB rows.
+**Done when:** advancing the clock past a due date produces a breach, a drafted appeal, and an accruing penalty, verified by tests.
+
+### Phase 4 — frontend: citizen application
+Phone + OTP login (OTP shown on screen in dev). Application form: Samagra pre-fill, income sources, purpose, self-declaration. Inline Zod validation with fix-oriented errors. Submit → live decision → either the certificate, the field-verification notice, or the specific thing needed from the citizen.
+**Done when:** personas 1 and 4 can be completed start to finish on a 360px viewport.
+
+### Phase 5 — frontend: the status page
+The `StatutoryClock` wired to real SLA state. Named current owner. Full timeline of transitions. On breach: the appeal card with one-tap filing and the live penalty counter. Certificate download. Language toggle throughout.
+**Done when:** persona 3 demonstrates breach → appeal → penalty entirely through the UI.
+
+### Phase 6 — frontend: officer view + accountability dashboard
+Officer login (separate route, credentials, no captcha). Patwari queue showing **only flagged cases**, each with its reason and evidence, and its own countdown. Approve / return-with-reason actions. Public dashboard: breach rate by tehsil, median issue time, auto-issue rate, penalties accrued. No login required for the public view.
+**Done when:** persona 2 can be resolved by an officer and the dashboard reflects it.
+
+### Phase 7 — the downstream verifier, honesty page, demo polish
+Mock scholarship portal at `/demo/verifier` asking a threshold question against a certificate and receiving a signed answer. `/about/what-is-real` rendering `docs/MOCKED.md`: what works today, what is synthetic, which real government API each mock would replace, and what consent artefact production would require. Dev time-travel control. Seed reset button. Final accessibility pass — Lighthouse accessibility ≥95, keyboard-navigable throughout, visible focus, reduced-motion respected.
+**Done when:** the full five-scenario demo runs end to end without touching a terminal.
+
+---
+
+## 13. How to start
+
+Say: **"Read PROJECT_SPEC.md and do Phase 0."**
+
+Then, each session: **"Read docs/PROGRESS.md and PROJECT_SPEC.md, then do Phase N."**

@@ -1,0 +1,2 @@
+# lib/sla — working-day math + breach detection (Lane A, Wave 3). PURE:
+# computeDueAt / slaState / penaltyFor. No DB, no Date.now(). See Spec.txt §9.

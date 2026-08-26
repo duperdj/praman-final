@@ -1,0 +1,3 @@
+# lib/engine — the issuance engine (Lane A, Wave 2+). PURE functions only:
+# no DB, no fetch, no Date.now() (pass time in). evaluate(application, snapshot)
+# -> Decision. Keep files under ~200 lines. See Spec.txt §8.

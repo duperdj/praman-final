@@ -1,0 +1,271 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Praman design system — ported from the Claude Design project
+ * "Statutory clock UI mockups" (praman-design-system). Georgia.gov-style:
+ * flat, square-cornered, hairline rules, one Rajya-Blue band per page,
+ * Manrope (Latin) + Noto Sans Devanagari (Hindi) + Roboto Mono (data).
+ *
+ * NOTE (Lane A ↔ Lane B): this replaces the seal-green/Mukta scaffold tokens
+ * with the approved website design system. The engine/API/prisma are untouched.
+ */
+
+:root {
+  /* --- Base neutrals (ink ramp) --- */
+  --ink-0: #ffffff; --ink-50: #f4f6f8; --ink-100: #e9edf1; --ink-200: #d5dbe1;
+  --ink-300: #b8c0c8; --ink-400: #8b949d; --ink-500: #6c737a; --ink-600: #4c5359;
+  --ink-700: #333a40; --ink-800: #1d2226; --ink-900: #0b0c0c;
+
+  /* --- Primary: Rajya Blue --- */
+  --blue-50: #eaf0f8; --blue-100: #cfdcef; --blue-200: #9db8dd; --blue-300: #5c86bf;
+  --blue-400: #2f61a4; --blue-500: #1d4f91; --blue-600: #173f75; --blue-700: #122f58;
+  --blue-800: #0c203c;
+
+  /* --- Accent: Praman Saffron (sparing; never body text) --- */
+  --saffron-50: #fdf2e3; --saffron-200: #f4cd92; --saffron-400: #dd8a12;
+  --saffron-500: #b96c00; --saffron-600: #8f5300;
+
+  /* --- Semantic hues --- */
+  --green-50: #e6f2ec; --green-500: #00703c; --green-600: #005a30;
+  --red-50: #fbeceb; --red-500: #b3271e; --red-600: #8e1f18;
+  --amber-focus: #ffb81c;
+
+  /* --- Semantic aliases --- */
+  --text-body: var(--ink-900); --text-muted: var(--ink-500); --text-inverse: var(--ink-0);
+  --text-link: var(--blue-500); --text-link-hover: var(--blue-700);
+  --text-link-visited: var(--blue-700); --text-heading: var(--ink-900);
+  --surface-page: var(--ink-0); --surface-muted: var(--ink-50); --surface-card: var(--ink-50);
+  --surface-inverse: var(--blue-500); --surface-inverse-deep: var(--blue-700);
+  --surface-overlay: rgba(11, 12, 12, .6);
+  --border-default: var(--ink-200); --border-strong: var(--ink-900);
+  --border-muted: var(--ink-100); --border-inverse: rgba(255, 255, 255, .4);
+  --action-primary: var(--blue-500); --action-primary-hover: var(--blue-600);
+  --action-primary-active: var(--blue-700);
+  --action-secondary: var(--ink-100); --action-secondary-hover: var(--ink-200);
+  --action-destructive: var(--red-500); --action-destructive-hover: var(--red-600);
+  --focus-ring: var(--amber-focus); --focus-ink: var(--ink-900);
+  --status-success: var(--green-500); --status-success-surface: var(--green-50);
+  --status-error: var(--red-500); --status-error-surface: var(--red-50);
+  --status-warning: var(--saffron-500); --status-warning-surface: var(--saffron-50);
+  --status-info: var(--blue-500); --status-info-surface: var(--blue-50);
+
+  /* --- Type --- */
+  --font-sans: var(--font-manrope), "Noto Sans Devanagari", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  --font-hindi: var(--font-noto-deva), var(--font-manrope), system-ui, sans-serif;
+  --font-mono: var(--font-roboto-mono), ui-monospace, Menlo, Consolas, monospace;
+  --text-xs: 14px; --text-sm: 16px; --text-base: 19px; --text-lg: 24px;
+  --text-xl: 27px; --text-2xl: 36px; --text-3xl: 48px;
+  --leading-tight: 1.09; --leading-heading: 1.15; --leading-snug: 1.25;
+  --leading-body: 1.45; --leading-loose: 1.6;
+  --weight-regular: 400; --weight-medium: 500; --weight-semibold: 600; --weight-bold: 700;
+  --tracking-tight: -0.01em; --tracking-normal: 0; --tracking-caps: 0.06em;
+  --type-display: var(--weight-bold) var(--text-3xl)/var(--leading-tight) var(--font-sans);
+  --type-h1: var(--weight-bold) var(--text-2xl)/var(--leading-heading) var(--font-sans);
+  --type-h2: var(--weight-bold) var(--text-xl)/var(--leading-snug) var(--font-sans);
+  --type-h3: var(--weight-bold) var(--text-lg)/var(--leading-snug) var(--font-sans);
+  --type-body: var(--weight-regular) var(--text-base)/var(--leading-body) var(--font-sans);
+  --type-body-sm: var(--weight-regular) var(--text-sm)/var(--leading-body) var(--font-sans);
+  --type-caption: var(--weight-regular) var(--text-xs)/var(--leading-body) var(--font-sans);
+  --type-label: var(--weight-semibold) var(--text-sm)/var(--leading-snug) var(--font-sans);
+  --type-eyebrow: var(--weight-bold) var(--text-xs)/1.2 var(--font-sans);
+
+  /* --- Spacing --- */
+  --space-0: 0; --space-1: 2px; --space-2: 4px; --space-3: 8px; --space-4: 12px;
+  --space-5: 16px; --space-6: 20px; --space-7: 24px; --space-8: 32px; --space-9: 40px;
+  --space-10: 48px; --space-11: 64px; --space-12: 80px;
+  --gutter: var(--space-8); --section-y: var(--space-11); --section-y-tight: var(--space-9);
+  --stack-text: var(--space-5);
+  --container-max: 1200px; --container-narrow: 760px; --measure: 66ch;
+
+  /* --- Layout / shape --- */
+  --radius-none: 0; --radius-xs: 2px; --radius-sm: 4px; --radius-pill: 999px;
+  --border-hairline: 1px; --border-thick: 2px; --border-rule: 4px; --border-marker: 10px;
+  --shadow-none: none; --shadow-menu: 0 2px 6px rgba(11, 12, 12, .16);
+  --shadow-dialog: 0 8px 32px rgba(11, 12, 12, .28);
+  --focus-shadow: 0 0 0 3px var(--focus-ring);
+  --focus-shadow-underline: 0 4px 0 0 var(--focus-ink);
+  --touch-min: 44px;
+
+  /* --- Motion (functional only) --- */
+  --ease-standard: cubic-bezier(.2, 0, .38, 1);
+  --ease-exit: cubic-bezier(.4, 0, 1, 1);
+  --duration-fast: 80ms; --duration-base: 150ms; --duration-slow: 240ms;
+  --transition-state: background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --duration-fast: 0ms; --duration-base: 0ms; --duration-slow: 0ms; }
+}
+
+/* --- Base element styles (from the DS base.css) --- */
+* , *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--surface-page);
+  color: var(--text-body);
+  font: var(--type-body);
+  text-wrap: pretty;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4 { margin: 0; color: var(--text-heading); }
+h1 { font: var(--type-h1); }
+h2 { font: var(--type-h2); }
+h3 { font: var(--type-h3); }
+p { margin: 0 0 var(--stack-text); }
+a { color: var(--text-link); text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: 1px; }
+a:hover { color: var(--text-link-hover); text-decoration-thickness: 3px; }
+a:visited { color: var(--text-link-visited); }
+:lang(hi) { font-family: var(--font-hindi); }
+
+/* Gov-standard high-visibility focus: amber block + ink underline. */
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
+textarea:focus-visible, [tabindex]:focus-visible {
+  outline: 3px solid transparent;
+  background-color: var(--focus-ring);
+  color: var(--focus-ink);
+  box-shadow: 0 -2px var(--focus-ring), var(--focus-shadow-underline);
+  text-decoration: none;
+}
+
+/* Reference numbers, dates and amounts: tabular, letter-spaced Roboto Mono. */
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.eyebrow {
+  font: var(--type-eyebrow); letter-spacing: var(--tracking-caps);
+  text-transform: uppercase; color: var(--text-muted); font-family: var(--font-mono);
+}
+
+/* Skip link for keyboard users. */
+.skip-link {
+  position: absolute; left: -9999px; top: 0; z-index: 200;
+  background: var(--ink-900); color: var(--ink-0); padding: 12px 20px;
+}
+.skip-link:focus { left: 0; }
+
+/* Shared page container. */
+.container { max-width: var(--container-max); margin: 0 auto; padding-left: var(--gutter); padding-right: var(--gutter); }
+
+/* Print: hide chrome, show only the certificate. */
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; }
+}
+
+/* ─────────────────────────── Lane B responsive utilities ─────────────────────────── */
+
+/* Fluid section rhythm. */
+.section { padding-top: var(--section-y-tight); }
+.section-first { padding-top: var(--space-9); }
+
+/* Responsive grids — collapse to a single column below 720px. */
+.grid { display: grid; gap: var(--space-6); }
+.grid-2 { grid-template-columns: 1fr 1fr; }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+.grid-5 { grid-template-columns: repeat(5, 1fr); }
+.grid-2-1 { grid-template-columns: 2fr 1fr; }
+.grid-main-aside { grid-template-columns: 1fr 320px; }
+.grid-status { grid-template-columns: 1fr 372px; }
+.grid-queue { grid-template-columns: 340px 1fr; }
+@media (max-width: 900px) {
+  .grid-3, .grid-4, .grid-5 { grid-template-columns: 1fr 1fr; }
+  .grid-2-1, .grid-main-aside, .grid-status, .grid-queue { grid-template-columns: 1fr; }
+}
+@media (max-width: 620px) {
+  .grid-2, .grid-3, .grid-4, .grid-5 { grid-template-columns: 1fr; }
+}
+
+/* Header nav: full row on desktop, collapses to a menu button on mobile. */
+.nav-desktop { display: flex; gap: var(--space-7); flex: 1; align-items: center; }
+.nav-desktop-signin { display: flex; }
+.nav-mobile-btn { display: none; }
+.nav-mobile-panel { display: none; }
+@media (max-width: 860px) {
+  .nav-desktop, .nav-desktop-signin { display: none; }
+  .nav-mobile-btn { display: inline-flex; }
+  .nav-mobile-panel.open { display: block; }
+}
+
+/* Fluid display headings that still hit the design sizes on wide screens. */
+.h-hero { font: var(--weight-bold) clamp(30px, 6vw, 48px)/1.05 var(--font-sans); }
+.h-page { font: var(--weight-bold) clamp(28px, 5vw, 44px)/1.08 var(--font-sans); }
+
+/* Hero band overlay layout. */
+.hero { position: relative; background: var(--ink-900); }
+.hero-media { position: relative; height: clamp(360px, 52vh, 480px); overflow: hidden; }
+.hero-media img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; display: block; }
+.hero-scrim { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(11,12,12,.82) 0%, rgba(11,12,12,.5) 45%, rgba(11,12,12,.12) 100%); }
+@media (max-width: 620px) {
+  .hero-scrim { background: linear-gradient(180deg, rgba(11,12,12,.55) 0%, rgba(11,12,12,.82) 100%); }
+}
+
+/* Fixed-ratio media boxes so photos sit in the right proportion without heavy crop. */
+.media { position: relative; width: 100%; overflow: hidden; background: var(--ink-100); }
+.media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.ratio-16-9 { aspect-ratio: 16 / 9; }
+.ratio-4-3 { aspect-ratio: 4 / 3; }
+.ratio-3-2 { aspect-ratio: 3 / 2; }
+.ratio-1-1 { aspect-ratio: 1 / 1; }
+
+/* Statutory clock segment track. */
+.clock-track { display: flex; gap: 4px; }
+.clock-seg { flex: 1; height: 12px; border: 1px solid var(--border-default); position: relative; overflow: hidden; }
+
+/* A phone frame used to preview the citizen flow on wide screens. */
+.phone-frame { width: 376px; max-width: 100%; padding: 8px; background: var(--ink-900); border-radius: 20px; }
+.phone-screen { width: 100%; height: 720px; max-width: 360px; margin: 0 auto; background: var(--ink-0); overflow: hidden; display: flex; flex-direction: column; }
+
+/* Utility helpers. */
+.stack { display: flex; flex-direction: column; }
+.row { display: flex; align-items: center; }
+.wrap-gap { flex-wrap: wrap; gap: var(--space-3); }
+.muted { color: var(--text-muted); }
+.hairline { border: var(--border-hairline) solid var(--border-default); }
+.card-flat { background: var(--surface-card); border: var(--border-hairline) solid var(--border-muted); border-top: var(--border-rule) solid var(--blue-500); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (max-width: 420px) { .hide-narrow { display: none; } }
+
+/* ---------------------------------------------------------------------------
+   Accessibility widget (floating button + panel) and its two page-wide modes.
+   --------------------------------------------------------------------------- */
+.a11y-widget { position: fixed; right: 16px; bottom: 16px; z-index: 190; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+.a11y-fab {
+  width: 52px; height: 52px; border-radius: 999px; border: 2px solid var(--blue-700);
+  background: var(--blue-500); color: #fff; font-size: 26px; line-height: 1;
+  display: grid; place-items: center; cursor: pointer; box-shadow: var(--shadow-dialog);
+}
+.a11y-fab:hover { background: var(--blue-600); }
+.a11y-fab:focus-visible { outline: none; box-shadow: var(--focus-shadow), var(--shadow-dialog); }
+.a11y-panel {
+  width: 232px; background: var(--surface-page); color: var(--ink-900);
+  border: 1px solid var(--border-default); border-top: 4px solid var(--blue-500);
+  box-shadow: var(--shadow-dialog); padding: 10px; display: flex; flex-direction: column; gap: 6px;
+}
+.a11y-panel-title { font: 700 12px/1.2 var(--font-sans); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-500); padding: 4px 6px 6px; }
+.a11y-item {
+  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+  padding: 10px 8px; background: transparent; border: 1px solid transparent; border-radius: 4px;
+  cursor: pointer; font: 500 15px/1.2 var(--font-sans); color: var(--ink-900);
+}
+.a11y-item:hover { background: var(--surface-muted); }
+.a11y-item:focus-visible { outline: none; box-shadow: var(--focus-shadow); }
+.a11y-item[aria-pressed="true"] { background: var(--blue-50); border-color: var(--blue-500); }
+.a11y-ic { font-size: 18px; width: 22px; text-align: center; }
+.a11y-label { flex: 1; }
+.a11y-state { font: 700 11px/1 var(--font-sans); text-transform: uppercase; letter-spacing: .05em; color: var(--ink-500); }
+.a11y-item[aria-pressed="true"] .a11y-state { color: var(--blue-600); }
+
+/* Larger text — the type scale is authored in fixed px, so a root font-size
+   bump has no effect. `zoom` scales every element (px included) uniformly. */
+html.a11y-large { zoom: 1.15; }
+
+/* High contrast — pure black on white, heavy borders, underlined links. */
+html.a11y-contrast body { background: #fff; color: #000; }
+html.a11y-contrast a { color: #00269a; text-decoration: underline; }
+html.a11y-contrast .a11y-fab { background: #000; border-color: #000; color: #fff; }
+html.a11y-contrast :where(p, li, span, h1, h2, h3, h4, label, td, th, div) { color: #000; }
+html.a11y-contrast :where(button, .card-flat, input, select, textarea) { border-color: #000 !important; }

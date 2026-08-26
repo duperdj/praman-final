@@ -1,0 +1,35 @@
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+next-env.d.ts
+
+# production
+/build
+
+# prisma / sqlite
+/prisma/dev.db
+/prisma/dev.db-journal
+*.db
+*.db-journal
+
+# env — .env holds only the local SQLite path, but keep secrets out by default
+.env
+.env*.local
+!.env.example
+
+# misc
+.DS_Store
+*.tsbuildinfo
+/coverage
+
+# hive orchestration internals — the meta-layer that built the app, NOT part of Praman
+/hive/
+/roster.json
+/roster-backups/
+/.claude/
+
+# nested duplicate copy — not part of the app
+/praman-main/

@@ -1,0 +1,197 @@
+// Praman — persistence schema.
+//   Core (Wave 1): Application / Applicant / Decision / Signal / SlaState —
+//     mirror the FROZEN v1 shapes in lib/contracts.ts.
+//   Flow tables (T8): Family, Certificate, Appeal, PenaltyLedger, Officer,
+//     SlaEvent, PriorCertificate — back the API / officer / appeal / SLA-
+//     persistence flow from Spec.txt §7 and §9.
+//
+// Conventions (kept consistent across every model):
+//   - SQLite has no native enums → enum-typed fields are String with the
+//     allowed values noted in a trailing comment.
+//   - Bilingual { hi, en } is flattened to two columns (*Hi / *En).
+//   - JSON-array fields (requiredInput, meta) are stored as JSON text (String).
+// These tables are persistence only — engine, registries, seed data, and API
+// route logic live elsewhere (Lane A / T5).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Demo clock — the simulated "now" that POST /api/dev/tick advances. Persisted
+// (single row, id=1) so the statutory countdown survives across serverless
+// instances / cold starts on a cloud deploy. simulatedNow = null → real time.
+model DemoClock {
+  id           Int       @id @default(1)
+  simulatedNow DateTime?
+}
+
+model Applicant {
+  id           String   @id @default(cuid())
+  fullName     String
+  phone        String // 10-digit, OTP-verified
+  aadhaarLike  String // 12-digit, fails Verhoeff on purpose (synthetic)
+  samagraId    String // MP family/member id (synthetic)
+  dateOfBirth  String // ISO date
+  district     String
+  tehsil       String
+  addressLine  String
+  familyId     String? // the Samagra family this applicant belongs to
+  family       Family? @relation(fields: [familyId], references: [id])
+  applications Application[]
+}
+
+model Application {
+  id                 String    @id @default(cuid())
+  applicant          Applicant @relation(fields: [applicantId], references: [id])
+  applicantId        String
+  statedAnnualIncome Int // INR (0 for non-income services)
+  incomeSource       String // IncomeSource: SALARY|AGRICULTURE|BUSINESS|DAILY_WAGE|PENSION|OTHER
+  purpose            String
+  submittedAt        DateTime
+  lang               String // "hi" | "en"
+  serviceType        String  @default("income-certificate") // catalog slug — one table, every service
+  formData           String? // JSON: service-specific answers (generic services)
+  decision           Decision?
+  sla                SlaState?
+  certificate        Certificate?
+  appeals            Appeal[]
+  penalties          PenaltyLedger[]
+  slaEvents          SlaEvent[]
+}
+
+model Decision {
+  id            String      @id @default(cuid())
+  application   Application @relation(fields: [applicationId], references: [id])
+  applicationId String      @unique
+  outcome       String // Outcome: AUTO_ISSUE|FIELD_VERIFY|NEEDS_INPUT|REJECT
+  score         Float // 0..100 confidence
+  headlineHi    String
+  headlineEn    String
+  requiredInput String? // JSON: Bilingual[] (NEEDS_INPUT only)
+  decidedAt     DateTime
+  signals       Signal[]
+}
+
+model Signal {
+  id         String   @id @default(cuid())
+  decision   Decision @relation(fields: [decisionId], references: [id])
+  decisionId String
+  ruleId     String // e.g. "R3_INCOME_VS_LAND"
+  severity   String // Severity: OK|INFO|WARN|BLOCK
+  reasonHi   String
+  reasonEn   String
+  meta       String? // JSON: Record<string, unknown>
+}
+
+model SlaState {
+  id                 String      @id @default(cuid())
+  application        Application @relation(fields: [applicationId], references: [id])
+  applicationId      String      @unique
+  startedAt          DateTime // clock starts when app enters a pending state
+  dueAt              DateTime // startedAt + 3 working days
+  workingDaysAllowed Int         @default(3)
+  workingDaysElapsed Int         @default(0)
+  status             String // SlaStatus: RUNNING|MET|BREACHED|CLOSED
+  breachedAt         DateTime?
+  penaltyAccruedInr  Int         @default(0) // ₹250 * days over
+  appealDraftHi      String? // auto-generated on breach
+  appealDraftEn      String?
+}
+
+// ---- Flow tables (T8): API / officer / appeal / SLA persistence (Spec §7, §9) ----
+
+// The Samagra family the applicant belongs to. Backs family composition + eKYC
+// checks and is the anchor for PriorCertificate history.
+model Family {
+  id                String    @id @default(cuid())
+  samagraFamilyId   String    @unique // synthetic MP Samagra family id
+  headName          String? // head-of-family display name
+  district          String
+  tehsil            String
+  isUrban           Boolean   @default(false)
+  ekycStatus        String    @default("VALID") // VALID|STALE|MISSING (Samagra eKYC)
+  ekycUpdatedAt     DateTime?
+  members           Applicant[]
+  priorCertificates PriorCertificate[]
+}
+
+// The issued certificate for an application. Valid one year, then reapply.
+model Certificate {
+  id            String      @id @default(cuid())
+  number        String      @unique // certificate reference number
+  application   Application @relation(fields: [applicationId], references: [id])
+  applicationId String      @unique
+  issuedAt      DateTime
+  expiresAt     DateTime // one year from issuedAt
+  revokedAt     DateTime?
+  signature     String? // mock signature payload (synthetic)
+}
+
+// An officer responsible for a stage — their name appears wherever a file is
+// held or an appeal/penalty is directed.
+model Officer {
+  id        String  @id @default(cuid())
+  name      String
+  role      String // PATWARI|TEHSILDAR|APPELLATE
+  district  String
+  tehsil    String
+  appeals   Appeal[]
+  penalties PenaltyLedger[]
+}
+
+// A drafted/filed appeal against the officer who let the clock run out.
+model Appeal {
+  id               String      @id @default(cuid())
+  application      Application @relation(fields: [applicationId], references: [id])
+  applicationId    String
+  tier             String      @default("FIRST") // FIRST|SECOND
+  status           String      @default("DRAFT") // DRAFT|FILED|RESOLVED|REJECTED
+  reasonHi         String
+  reasonEn         String
+  againstOfficer   Officer?    @relation(fields: [againstOfficerId], references: [id])
+  againstOfficerId String?
+  createdAt        DateTime    @default(now())
+  filedAt          DateTime?
+  penalties        PenaltyLedger[]
+}
+
+// Penalty accrual rows — ₹250/day over the deadline (Lok Seva Guarantee Act).
+model PenaltyLedger {
+  id            String      @id @default(cuid())
+  application   Application @relation(fields: [applicationId], references: [id])
+  applicationId String
+  appeal        Appeal?     @relation(fields: [appealId], references: [id])
+  appealId      String?
+  officer       Officer?    @relation(fields: [officerId], references: [id])
+  officerId     String?
+  ratePerDay    Int         @default(250) // ₹250/day
+  breachDays    Int         @default(0)
+  amountInr     Int         @default(0) // ratePerDay * breachDays
+  status        String      @default("ACCRUING") // ACCRUING|SETTLED|WAIVED
+  createdAt     DateTime    @default(now())
+}
+
+// The SLA clock's audit trail — one row per statutory transition.
+model SlaEvent {
+  id            String      @id @default(cuid())
+  application   Application @relation(fields: [applicationId], references: [id])
+  applicationId String
+  type          String // STARTED|DUE_SET|PAUSED|RESUMED|WARNED|BREACHED
+  at            DateTime
+}
+
+// Previous income certificates for a family — backs PriorCertificateRegistry
+// (PRIOR_SWING rule: this year's declaration vs last year's).
+model PriorCertificate {
+  id             String   @id @default(cuid())
+  family         Family   @relation(fields: [familyId], references: [id])
+  familyId       String
+  year           Int // certificate year
+  declaredIncome Int // INR declared on that prior certificate
+  expiresAt      DateTime
+}

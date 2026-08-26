@@ -1,0 +1,324 @@
+<title>Praman, explained</title>
+<style>
+  :root {
+    --paper: #FBFAF6;
+    --paper-2: #F2F0E8;
+    --ink: #14140F;
+    --muted: #6B675C;
+    --line: #DED9CC;
+    --seal: #1B4D3E;
+    --seal-soft: #E7EFEA;
+    --clock: #B8860B;
+    --clock-soft: #F3EAD2;
+    --breach: #A32D2D;
+    --breach-soft: #F5E4E1;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #15150F;
+      --paper-2: #201E16;
+      --ink: #F3F1E9;
+      --muted: #A39D8D;
+      --line: #35322A;
+      --seal: #6FBBA1;
+      --seal-soft: #1C2A25;
+      --clock: #D8AE3C;
+      --clock-soft: #2A2213;
+      --breach: #E28B87;
+      --breach-soft: #2E1B1A;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #15150F;
+    --paper-2: #201E16;
+    --ink: #F3F1E9;
+    --muted: #A39D8D;
+    --line: #35322A;
+    --seal: #6FBBA1;
+    --seal-soft: #1C2A25;
+    --clock: #D8AE3C;
+    --clock-soft: #2A2213;
+    --breach: #E28B87;
+    --breach-soft: #2E1B1A;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Noto Sans Devanagari", "Noto Sans", system-ui, sans-serif;
+    font-weight: 400;
+    line-height: 1.65;
+    font-size: 17px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 24px 96px;
+  }
+
+  /* Masthead */
+  .masthead {
+    padding: 56px 0 26px;
+    border-bottom: 3px solid var(--seal);
+    margin-bottom: 8px;
+  }
+  .eyebrow {
+    font-size: 12.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--seal);
+    font-weight: 600;
+    margin: 0 0 16px;
+  }
+  h1 {
+    font-family: "Mukta", system-ui, sans-serif;
+    font-weight: 800;
+    font-size: clamp(40px, 8vw, 58px);
+    line-height: 1.02;
+    letter-spacing: -0.01em;
+    margin: 0;
+    text-wrap: balance;
+  }
+  h1 .deva { display: block; color: var(--seal); font-weight: 700; font-size: 0.62em; margin-bottom: 4px; letter-spacing: 0; }
+  .tagline {
+    font-size: 18px;
+    color: var(--muted);
+    margin: 18px 0 0;
+    max-width: 52ch;
+  }
+
+  h2 {
+    font-family: "Mukta", system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: -0.01em;
+    margin: 52px 0 4px;
+    text-wrap: balance;
+  }
+  h2 .n {
+    color: var(--clock);
+    font-variant-numeric: tabular-nums;
+    margin-right: 10px;
+  }
+  h3 {
+    font-family: "Mukta", system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 18.5px;
+    margin: 26px 0 2px;
+  }
+  p { margin: 14px 0; }
+  a { color: var(--seal); }
+  strong { font-weight: 600; }
+  em { font-style: normal; color: var(--seal); font-weight: 600; }
+  .deva-inline { font-weight: 500; }
+
+  .lead {
+    font-size: 19px;
+    line-height: 1.6;
+  }
+
+  /* Pull quote — the thesis */
+  .thesis {
+    border-left: 4px solid var(--clock);
+    background: var(--clock-soft);
+    padding: 20px 22px;
+    margin: 26px 0;
+    border-radius: 0 8px 8px 0;
+    font-size: 18px;
+  }
+  .thesis p { margin: 0; }
+  .thesis p + p { margin-top: 12px; }
+
+  /* numbered approach list */
+  ol.steps { list-style: none; counter-reset: s; margin: 20px 0; padding: 0; }
+  ol.steps li {
+    counter-increment: s;
+    position: relative;
+    padding: 16px 0 16px 52px;
+    border-top: 1px solid var(--line);
+  }
+  ol.steps li:last-child { border-bottom: 1px solid var(--line); }
+  ol.steps li::before {
+    content: counter(s);
+    position: absolute; left: 0; top: 14px;
+    width: 34px; height: 34px;
+    background: var(--seal); color: var(--paper);
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-family: "Mukta", sans-serif; font-weight: 700; font-size: 16px;
+  }
+  ol.steps li b { font-weight: 600; }
+
+  /* the four decisions */
+  .grid { display: grid; gap: 12px; margin: 20px 0; }
+  @media (min-width: 560px) { .grid.two { grid-template-columns: 1fr 1fr; } }
+  .card {
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .card .pill {
+    display: inline-block;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.03em;
+    padding: 3px 9px; border-radius: 999px;
+    margin-bottom: 8px;
+  }
+  .p-green { background: var(--seal-soft); color: var(--seal); }
+  .p-clock { background: var(--clock-soft); color: var(--clock); }
+  .p-breach { background: var(--breach-soft); color: var(--breach); }
+  .card p { margin: 4px 0 0; font-size: 15.5px; color: var(--muted); }
+  .card h4 { margin: 0; font-family: "Mukta", sans-serif; font-weight: 700; font-size: 16.5px; }
+
+  /* statutory clock mock */
+  .clock-demo { margin: 22px 0 8px; }
+  .track { display: flex; gap: 6px; }
+  .seg {
+    flex: 1;
+    border: 1.5px solid var(--line);
+    border-radius: 6px;
+    padding: 10px 10px 12px;
+    min-height: 78px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .seg .day { font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .seg .who { font-size: 13px; font-weight: 600; line-height: 1.25; }
+  .seg.filled { background: var(--clock-soft); border-color: var(--clock); }
+  .seg.now { border-color: var(--clock); border-width: 2px; }
+  .seg.now .who { color: var(--clock); }
+  .clock-cap { font-size: 14px; color: var(--muted); margin-top: 10px; }
+
+  /* personas */
+  .persona {
+    border-top: 1px solid var(--line);
+    padding: 15px 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 14px;
+    align-items: start;
+  }
+  .persona:last-of-type { border-bottom: 1px solid var(--line); }
+  .persona .badge {
+    font-family: "Mukta", sans-serif; font-weight: 700;
+    background: var(--seal); color: var(--paper);
+    width: 30px; height: 30px; border-radius: 8px;
+    display: grid; place-items: center; font-size: 15px;
+    margin-top: 2px;
+  }
+  .persona .name { font-weight: 600; }
+  .persona .name span { color: var(--muted); font-weight: 400; }
+  .persona p { margin: 3px 0 0; font-size: 15.5px; }
+
+  ul.plain { padding-left: 20px; margin: 14px 0; }
+  ul.plain li { margin: 7px 0; }
+
+  code {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.86em;
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 1px 6px;
+  }
+
+  .footer {
+    margin-top: 60px; padding-top: 22px;
+    border-top: 3px solid var(--seal);
+    color: var(--muted); font-size: 15px;
+  }
+  .stamp {
+    display: inline-block; margin-top: 8px;
+    border: 2px solid var(--seal); color: var(--seal);
+    border-radius: 8px; padding: 6px 12px;
+    font-family: "Mukta", sans-serif; font-weight: 700;
+    font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase;
+    transform: rotate(-1.5deg);
+  }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;700;800&family=Noto+Sans+Devanagari:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Hackathon project · BuildWhatMovesIndia</p>
+    <h1><span class="deva">प्रमाण</span>Praman</h1>
+    <p class="tagline">We are rebuilding a real Indian government service — the Madhya Pradesh income certificate — so that it actually keeps the promise it already makes to citizens.</p>
+  </header>
+
+  <p class="lead">Hey Soham 👋 — here's the whole project in plain language, so we're on the same page before we start building. Give it a read; it's short.</p>
+
+  <h2><span class="n">1</span>What we're building</h2>
+  <p>There's a real government website in Madhya Pradesh, <code>mpedistrict.gov.in</code>, where people apply for an <strong>income certificate</strong> (<span class="deva-inline">आय प्रमाण पत्र</span>). It's a document you need for scholarships, reservations, welfare schemes — proof of how much your family earns.</p>
+  <p>For the hackathon, we rebuild that service — the website <em>and</em> the system behind it — so it solves the real problem instead of just looking nicer. All the data we use is <strong>fake/synthetic</strong> — no real people, no real Aadhaar. We'll say so openly in the app.</p>
+
+  <h2><span class="n">2</span>The problem we're fixing</h2>
+  <p>Here's the thing most people don't know:</p>
+  <ul class="plain">
+    <li>By law (a 2010 MP act), the government <strong>must deliver this certificate in 3 working days</strong>.</li>
+    <li>If they're late, the responsible officer <strong>owes you ₹250 for every day of delay</strong> — and you can appeal.</li>
+    <li>The only document you need to give is <strong>a signed statement of your own income</strong>. Nothing else.</li>
+  </ul>
+  <p>But in reality: the website never tells you this promise exists, and it can't keep it anyway — because <em>every single application</em>, even the obviously honest ones, is made to wait behind a manual field visit by an officer (the <span class="deva-inline">पटवारी</span>, Patwari) to "verify" a document that was just the person's own word.</p>
+
+  <div class="thesis">
+    <p><strong>So the fix isn't "add a countdown timer."</strong> It's smarter than that:</p>
+    <p>Check the person's claim against records the government <em>already has</em> → instantly approve the clean cases → only send a human to the few suspicious ones (and tell them why) → and put that 3-day legal deadline front and center, so if it's ever missed, the appeal and the penalty happen automatically.</p>
+  </div>
+
+  <h2><span class="n">3</span>How it works, simply</h2>
+  <p>A citizen opens the app on a cheap phone, logs in with just <strong>phone + OTP</strong> (no passwords, no captcha), and fills a short form: their income, where it comes from, and what it's for.</p>
+  <p>Then the heart of the project — an <strong>engine</strong> — checks their answers against several mock government databases (family records, ration card, land records, past certificates). Based on what it finds, it makes one of four decisions, and <strong>every decision comes with a plain reason the citizen can read</strong> (in Hindi and English):</p>
+
+  <div class="grid two">
+    <div class="card"><span class="pill p-green">Auto-issue</span><h4>Looks clean</h4><p>Everything checks out. Certificate issued in seconds. Done.</p></div>
+    <div class="card"><span class="pill p-clock">Send to officer</span><h4>Something to check</h4><p>One mild red flag. Goes to a human — <em>with the specific reason attached</em> so they know exactly what to look at.</p></div>
+    <div class="card"><span class="pill p-clock">Needs a fix</span><h4>Missing / stale info</h4><p>e.g. their ID records are out of date. We tell them the exact fix, and the clock pauses until they're back.</p></div>
+    <div class="card"><span class="pill p-breach">Reject</span><h4>Clear contradiction</h4><p>e.g. claims low income but holds a "poor family" ration card. We show the contradiction; they can correct or appeal.</p></div>
+  </div>
+
+  <h2><span class="n">4</span>The signature piece: the statutory clock</h2>
+  <p>This is the thing we want the judges to remember. Not a spinner — a track of <strong>3 segments, one per working day</strong>, each showing its date and <strong>the name of the officer who's holding the file right now</strong>. Segments fill as days pass. If it runs past day 3, it turns red and a <strong>penalty counter starts ticking in rupees</strong>.</p>
+
+  <div class="clock-demo">
+    <div class="track">
+      <div class="seg filled"><span class="day">Day 1 · 21 Aug</span><span class="who">✓ Submitted</span></div>
+      <div class="seg now"><span class="day">Day 2 · 22 Aug</span><span class="who">With: Patwari R. Verma</span></div>
+      <div class="seg"><span class="day">Day 3 · 25 Aug</span><span class="who">Tehsildar approval</span></div>
+    </div>
+    <p class="clock-cap">A quick mock of the idea — the citizen always sees who has their file and how long is left.</p>
+  </div>
+
+  <h2><span class="n">5</span>The 5 stories we'll demo</h2>
+  <p>The whole app is built to tell these five short stories end-to-end:</p>
+
+  <div class="persona"><span class="badge">1</span><div><div class="name">Sunita, Indore <span>· the clean case</span></div><p>Everything's honest. Certificate auto-issued in about 8 seconds. Shows the new baseline: fast.</p></div></div>
+  <div class="persona"><span class="badge">2</span><div><div class="name">Ramesh, Dewas <span>· a soft flag</span></div><p>His land doesn't quite match his income, so it's sent to an officer — with the reason shown. Officer approves it within the deadline. Shows targeted human review.</p></div></div>
+  <div class="persona"><span class="badge">3</span><div><div class="name">Kamla, Sehore <span>· the deadline is missed</span></div><p>An officer sits on it too long. The clock runs out → an appeal is auto-drafted and the ₹250/day penalty starts. Shows the promise being enforced.</p></div></div>
+  <div class="persona"><span class="badge">4</span><div><div class="name">Arjun, Bhopal <span>· blocked, not abandoned</span></div><p>His ID records are stale, so we ask him to fix one thing (clock pauses). He fixes it, resubmits, and it auto-issues. Shows blocked ≠ ignored.</p></div></div>
+  <div class="persona"><span class="badge">5</span><div><div class="name">A scholarship portal <span>· data, not paper</span></div><p>Another website asks "is this family under ₹2.5 lakh?" and gets a signed yes/no back — no PDF upload. Shows why treating the certificate as data matters.</p></div></div>
+
+  <h2><span class="n">6</span>A few rules we're sticking to</h2>
+  <ul class="plain">
+    <li><strong>Hindi is the default</strong>, English is a toggle. It's for real MP citizens.</li>
+    <li><strong>Works on a ₹6,000 phone on a slow connection</strong> — small, fast, screen at least 360px wide, big tap targets, usable one-handed.</li>
+    <li><strong>Nothing ever silently waits.</strong> Every step shows who's responsible, when, and what happens next.</li>
+    <li><strong>Every automatic decision is explained</strong> in plain words — no black box.</li>
+    <li><strong>All data is fake</strong>, and we have an honesty page that says exactly what's real, what's mocked, and which real government system each mock would replace.</li>
+  </ul>
+
+  <h2><span class="n">7</span>The tech, briefly</h2>
+  <p>Next.js (App Router) + TypeScript, Tailwind for styling, a simple file-based database (Prisma + SQLite) so there's zero setup, Zod for checking inputs, and Vitest for testing the engine. The look is pinned already: deep institutional green, a "document that carries legal weight" feel, two fonts (Mukta + Noto Sans Devanagari) — the same colors you're reading right now.</p>
+
+  <div class="footer">
+    <p>That's the whole idea. The one-line version: <strong>the state already promises this certificate in 3 days and already owes ₹250/day if it's late — we're building the software that finally keeps that promise, and proves it.</strong></p>
+    <p>Ping me with questions and we'll divide up the building next. 🚀</p>
+    <span class="stamp">Praman · आय प्रमाण पत्र</span>
+  </div>
+
+</div>

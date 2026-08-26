@@ -1,0 +1,308 @@
+<title>Praman — Who Builds What</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --paper: #FBFAF6;
+    --paper-2: #F3F1E8;
+    --card: #FFFFFF;
+    --ink: #14140F;
+    --ink-soft: #4A483F;
+    --ink-faint: #77746A;
+    --line: #E2DED2;
+    --seal: #1B4D3E;
+    --seal-soft: #2C6B57;
+    --gold: #B8860B;
+    --gold-soft: #9C7410;
+    --breach: #A32D2D;
+    --seal-wash: #EAF0EC;
+    --gold-wash: #F6EEDA;
+    --shadow: 0 1px 2px rgba(20,20,15,.05), 0 8px 24px rgba(20,20,15,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #14140F;
+      --paper-2: #1C1B15;
+      --card: #201F18;
+      --ink: #F3F1E8;
+      --ink-soft: #C4C0B2;
+      --ink-faint: #8E8B7E;
+      --line: #34322A;
+      --seal: #6FBFA3;
+      --seal-soft: #56A98C;
+      --gold: #E0B453;
+      --gold-soft: #C89A38;
+      --breach: #E07A7A;
+      --seal-wash: #1A2A25;
+      --gold-wash: #2A2416;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #14140F;
+    --paper-2: #1C1B15;
+    --card: #201F18;
+    --ink: #F3F1E8;
+    --ink-soft: #C4C0B2;
+    --ink-faint: #8E8B7E;
+    --line: #34322A;
+    --seal: #6FBFA3;
+    --seal-soft: #56A98C;
+    --gold: #E0B453;
+    --gold-soft: #C89A38;
+    --breach: #E07A7A;
+    --seal-wash: #1A2A25;
+    --gold-wash: #2A2416;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Noto Sans Devanagari", "Mukta", system-ui, sans-serif;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 940px; margin: 0 auto; padding: 0 22px; }
+
+  h1, h2, h3 { font-family: "Mukta", system-ui, sans-serif; text-wrap: balance; margin: 0; }
+  .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+
+  /* ---- Masthead ---- */
+  header.top {
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, var(--paper-2), var(--paper));
+  }
+  .top-inner { padding: 44px 0 38px; }
+  .kicker {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px; letter-spacing: .22em; text-transform: uppercase;
+    color: var(--seal); font-weight: 600; margin-bottom: 16px;
+  }
+  h1 { font-size: clamp(30px, 5.4vw, 48px); font-weight: 800; letter-spacing: -.01em; line-height: 1.05; }
+  h1 .hi { display: block; font-family: "Noto Sans Devanagari", sans-serif; font-weight: 600; font-size: .52em; color: var(--ink-soft); margin-top: 10px; letter-spacing: 0; }
+  .lede { font-size: 18px; color: var(--ink-soft); max-width: 60ch; margin: 20px 0 0; }
+  .whofor {
+    display: inline-flex; align-items: center; gap: 10px; margin-top: 26px;
+    padding: 8px 15px; border: 1px solid var(--line); border-radius: 999px;
+    background: var(--card); font-size: 13.5px; color: var(--ink-soft);
+  }
+  .whofor b { color: var(--ink); font-weight: 700; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); flex: none; }
+
+  section { padding: 46px 0; border-bottom: 1px solid var(--line); }
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11.5px; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--ink-faint); font-weight: 600; margin-bottom: 14px;
+  }
+  h2 { font-size: clamp(21px, 3.4vw, 27px); font-weight: 700; letter-spacing: -.01em; }
+  section > .wrap > p { color: var(--ink-soft); max-width: 66ch; margin: 12px 0 0; }
+
+  /* ---- The two lanes ---- */
+  .lanes { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 26px; }
+  .lane {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    padding: 24px 22px 26px; box-shadow: var(--shadow); position: relative; overflow: hidden;
+  }
+  .lane::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 4px; }
+  .lane.a::before { background: var(--seal); }
+  .lane.b::before { background: var(--gold); }
+  .lane-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
+  .lane-tag {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase; padding: 4px 9px; border-radius: 6px;
+  }
+  .lane.a .lane-tag { background: var(--seal-wash); color: var(--seal); }
+  .lane.b .lane-tag { background: var(--gold-wash); color: var(--gold-soft); }
+  .lane h3 { font-size: 20px; font-weight: 700; margin-top: 8px; }
+  .lane .owner { font-size: 13.5px; color: var(--ink-faint); margin-top: 3px; }
+  .lane .role { font-size: 14.5px; color: var(--ink-soft); margin: 12px 0 18px; }
+  .tasklist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .tasklist li { display: grid; grid-template-columns: 20px 1fr; gap: 11px; align-items: start; }
+  .tasklist .mk { font-family: "IBM Plex Mono", monospace; font-size: 12px; font-weight: 600; color: var(--ink-faint); padding-top: 2px; }
+  .lane.a .mk { color: var(--seal-soft); }
+  .lane.b .mk { color: var(--gold-soft); }
+  .t-title { font-weight: 600; font-size: 15px; color: var(--ink); }
+  .t-desc { font-size: 13.5px; color: var(--ink-soft); margin-top: 1px; }
+  .t-desc code { font-family: "IBM Plex Mono", monospace; font-size: 12px; background: var(--paper-2); padding: 1px 5px; border-radius: 4px; color: var(--ink-soft); }
+  .lane .foot {
+    margin-top: 20px; padding-top: 15px; border-top: 1px dashed var(--line);
+    font-size: 13px; color: var(--ink-faint);
+  }
+  .lane .foot b { color: var(--ink-soft); font-weight: 600; }
+
+  /* ---- Boundary / contract ---- */
+  .boundary {
+    margin-top: 26px; background: var(--seal-wash); border: 1px solid var(--line);
+    border-radius: 14px; padding: 22px 22px 24px;
+  }
+  .boundary h3 { font-size: 17px; font-weight: 700; color: var(--seal); }
+  .boundary p { font-size: 14.5px; color: var(--ink-soft); margin: 8px 0 0; max-width: 68ch; }
+  .contract { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 16px; }
+  .contract span {
+    font-family: "IBM Plex Mono", monospace; font-size: 12.5px; font-weight: 500;
+    background: var(--card); border: 1px solid var(--line); color: var(--ink-soft);
+    padding: 6px 11px; border-radius: 7px;
+  }
+
+  /* ---- Rules of engagement ---- */
+  .rules { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 24px; }
+  .rule { display: grid; grid-template-columns: 30px 1fr; gap: 12px; align-items: start; }
+  .rule .n { font-family: "Mukta", sans-serif; font-weight: 800; font-size: 20px; color: var(--gold); line-height: 1.2; }
+  .rule b { display: block; font-weight: 700; font-size: 15px; }
+  .rule p { font-size: 13.5px; color: var(--ink-soft); margin: 3px 0 0; }
+
+  /* ---- Non-negotiables ---- */
+  .nn { display: flex; flex-direction: column; gap: 10px; margin-top: 22px; }
+  .nn div {
+    display: grid; grid-template-columns: 22px 1fr; gap: 12px; align-items: start;
+    font-size: 14.5px; color: var(--ink-soft);
+  }
+  .nn .x { color: var(--breach); font-weight: 700; font-family: "IBM Plex Mono", monospace; }
+  .nn b { color: var(--ink); font-weight: 700; }
+
+  footer { padding: 34px 0 60px; }
+  footer p { font-size: 13px; color: var(--ink-faint); margin: 0; }
+  .devnote {
+    font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--ink-faint);
+    background: var(--paper-2); border: 1px solid var(--line); border-radius: 8px;
+    padding: 12px 14px; margin-top: 14px;
+  }
+  a { color: var(--seal); }
+
+  @media (max-width: 720px) {
+    .lanes { grid-template-columns: 1fr; }
+    .rules { grid-template-columns: 1fr; }
+    section { padding: 36px 0; }
+  }
+</style>
+
+<header class="top">
+  <div class="wrap top-inner">
+    <div class="kicker">Praman · BuildWhatMovesIndia</div>
+    <h1>Who builds what
+      <span class="hi">प्रमाण — दो लोग, दो हिस्से, एक प्रोजेक्ट</span>
+    </h1>
+    <p class="lede">We're two people building one thing: a re-imagined income-certificate service for Madhya Pradesh. This splits the whole project into two equal halves so we never step on each other's code — and meet cleanly in the middle.</p>
+    <div class="whofor"><span class="dot"></span> For <b>Soham</b> — read once, then pick your lane. Both are equal in size.</div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">The idea in one line</div>
+    <h2>An income certificate that decides itself — and explains every decision.</h2>
+    <p>Today a citizen applies, then waits in the dark. Our version reads the application, checks it against mock government registries, and does one of four things <em>instantly</em>: issues it, sends it for a quick human check, asks the citizen for one missing thing, or rejects it with a clear reason. A visible "statutory clock" counts the 3 working days the office is legally allowed — and if that time runs out, the app auto-drafts the appeal. Everything is explainable. Nothing silently gets stuck.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">The split · two equal lanes</div>
+    <h2>Lane A holds the brain and the data. Lane B holds everything people see and the demo.</h2>
+    <p>Roughly the same amount of work each. They only touch through one shared set of TypeScript types (below), so you can both build at full speed in parallel. Codex (mandatory for this hackathon) is our engine co-pilot inside Lane A — it writes the core rules, a human reviews and integrates them.</p>
+
+    <div class="lanes">
+      <div class="lane a">
+        <div class="lane-head">
+          <span class="lane-tag">Lane A</span>
+        </div>
+        <h3>Engine &amp; Data</h3>
+        <div class="owner">The spine — decisions, deadlines, and every mock registry</div>
+        <p class="role">You own how the system <em>thinks</em>: the rules that turn an application into a decision, the deadline math, and all the fake-but-realistic government data behind it.</p>
+        <ul class="tasklist">
+          <li><span class="mk">01</span><div><div class="t-title">Decision engine</div><div class="t-desc">The 8 rules + scoring that map an application to one of 4 outcomes, with a bilingual reason for each. Lives in <code>lib/engine</code>. Codex drafts, you review &amp; integrate.</div></div></li>
+          <li><span class="mk">02</span><div><div class="t-title">SLA / deadline engine</div><div class="t-desc">Working-day math, breach detection, ₹250/day penalty ledger, auto-drafted appeal on breach. <code>lib/sla</code>.</div></div></li>
+          <li><span class="mk">03</span><div><div class="t-title">Data model + seed</div><div class="t-desc">Prisma schema and the seed: 5 demo personas + 40 filler applications so the dashboard looks alive.</div></div></li>
+          <li><span class="mk">04</span><div><div class="t-title">Mock registries</div><div class="t-desc">5 fake government sources (Aadhaar-ish, Samagra, land, ration, tax) behind clean interfaces. All synthetic data.</div></div></li>
+          <li><span class="mk">05</span><div><div class="t-title">API routes</div><div class="t-desc">The endpoints the frontend calls — evaluate an application, advance the demo clock, fetch status.</div></div></li>
+          <li><span class="mk">06</span><div><div class="t-title">Correctness tests</div><div class="t-desc">Vitest suite proving each persona lands on the right outcome. This is our safety net for the demo.</div></div></li>
+        </ul>
+        <div class="foot"><b>Done when:</b> feed any persona in → get the correct decision + deadline out, and the tests are green.</div>
+      </div>
+
+      <div class="lane b">
+        <div class="lane-head">
+          <span class="lane-tag">Lane B</span>
+        </div>
+        <h3>Experience &amp; Demo</h3>
+        <div class="owner">Everything on screen — plus the story we tell the judges</div>
+        <p class="role">You own how the system <em>feels</em>: the setup everyone builds on, the citizen and officer screens, the signature clock UI, and the walkthrough that wins the room.</p>
+        <ul class="tasklist">
+          <li><span class="mk">01</span><div><div class="t-title">Project foundation</div><div class="t-desc">Next.js + Tailwind setup, design tokens (the palette below), and the Hindi/English dictionary. Everyone builds on this.</div></div></li>
+          <li><span class="mk">02</span><div><div class="t-title">Citizen apply flow</div><div class="t-desc">Phone + OTP sign-in (no passwords, ever), bilingual forms, works down to a 360px phone screen.</div></div></li>
+          <li><span class="mk">03</span><div><div class="t-title">Status page + Statutory Clock</div><div class="t-desc">The signature UI — 3 segments = 3 working days, filling in real time, turning red on breach. Every state.</div></div></li>
+          <li><span class="mk">04</span><div><div class="t-title">The certificate</div><div class="t-desc">The final issued document — clean, official-looking, printable.</div></div></li>
+          <li><span class="mk">05</span><div><div class="t-title">Officer view + dashboard</div><div class="t-desc">The screen a government officer uses to clear the "field-verify" queue, plus a live stats dashboard.</div></div></li>
+          <li><span class="mk">06</span><div><div class="t-title">Demo script</div><div class="t-desc">The 5-persona walkthrough + slides/notes that show the whole story in ~3 minutes.</div></div></li>
+        </ul>
+        <div class="foot"><b>Done when:</b> a person can apply on a phone, watch the clock, and see a real certificate — and we can demo all 5 personas end to end.</div>
+      </div>
+    </div>
+
+    <div class="boundary">
+      <h3>Where the two lanes meet — the only shared contract</h3>
+      <p>Both halves talk through one frozen set of TypeScript types. Michael (our orchestrator) writes these first and locks them, so Lane A can build the engine and Lane B can build the screens <em>at the same time</em> without waiting on each other. If a type needs to change, we change it together — once.</p>
+      <div class="contract">
+        <span>Application</span>
+        <span>RegistrySnapshot</span>
+        <span>Signal</span>
+        <span>Decision</span>
+        <span>SlaState</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">How we actually work</div>
+    <h2>Four rules so two people move like one.</h2>
+    <div class="rules">
+      <div class="rule"><div class="n">1</div><div><b>Types first, then split.</b><p>Nothing real gets built until the 5 shared types are frozen. That boundary is what lets us go parallel.</p></div></div>
+      <div class="rule"><div class="n">2</div><div><b>Your lane, your files.</b><p>Lane A lives in <span class="mono">lib/</span> + <span class="mono">api/</span>. Lane B lives in the screens + <span class="mono">app/</span>. We rarely touch the same file.</p></div></div>
+      <div class="rule"><div class="n">3</div><div><b>Fake data is real work.</b><p>The mock registries and seed personas <em>are</em> the product in a demo. They must look convincing — but stay 100% synthetic.</p></div></div>
+      <div class="rule"><div class="n">4</div><div><b>The demo is the deadline.</b><p>Both lanes aim at one thing: 5 personas, running clean, on a phone screen, in front of judges.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Five things we never break</div>
+    <h2>The non-negotiables — true for both lanes.</h2>
+    <div class="nn">
+      <div><span class="x">✕</span><div><b>All data is synthetic.</b> No real Aadhaar, Samagra, or personal data anywhere. Aadhaar-like numbers are built to fail the real checksum so they can never collide with a real person's.</div></div>
+      <div><span class="x">✕</span><div><b>Citizens never see a password or captcha.</b> Phone number + OTP only. That's the whole login.</div></div>
+      <div><span class="x">✕</span><div><b>Hindi is the default.</b> English is a toggle, not the starting point.</div></div>
+      <div><span class="x">✕</span><div><b>Works on a 360px phone.</b> If it breaks on a small screen, it's broken.</div></div>
+      <div><span class="x">✕</span><div><b>Nothing silently pends.</b> Every automated decision has a reason a citizen can read.</div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">The look</div>
+    <h2>Government-paper feel, without the government-website pain.</h2>
+    <p>Warm paper background, official seal-green, a gold "clock" accent, and a red we only use for a missed deadline. Display type is Mukta; body carries Devanagari cleanly. Lane B owns turning this into real tokens — but both of us design to it.</p>
+    <div class="contract" style="margin-top:18px">
+      <span style="border-left:14px solid #1B4D3E">seal green · #1B4D3E</span>
+      <span style="border-left:14px solid #B8860B">clock gold · #B8860B</span>
+      <span style="border-left:14px solid #A32D2D">breach red · #A32D2D</span>
+      <span style="border-left:14px solid #FBFAF6">paper · #FBFAF6</span>
+      <span style="border-left:14px solid #14140F">ink · #14140F</span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Praman — an entry for BuildWhatMovesIndia. Built by two, powered by OpenAI's Codex on the engine and Claude on the build floor.</p>
+    <div class="devnote">Pick a lane and tell me. Michael freezes the 5 shared types → both lanes start same day → we meet at the demo.</div>
+  </div>
+</footer>
