@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
+import { ServiceSearch } from "@/components/feature/ServiceSearch";
 
 const SERVICES = [
   { icon: "file-text", href: "/services/income-certificate", title: bi("आय प्रमाण पत्र", "Income certificate"), desc: bi("परिवार की वार्षिक आय का प्रमाण। अभिलेख मेल खाने पर उसी दिन जारी।", "Proof of your family's annual income. Issued the same day when records match.") },
@@ -43,20 +44,7 @@ export default function Home() {
                 <p style={{ font: "var(--type-body)", color: "rgba(255,255,255,.92)", margin: "12px 0 0" }}>
                   {pick(lang, bi("प्रमाण पत्र के लिए आवेदन करें, स्थिति जानें, या योजना खोजें। तेज़, स्पष्ट और दोनों भाषाओं में।", "Apply for a certificate, track a decision, or find a scheme. Fast, clear and in both languages."))}
                 </p>
-                <form
-                  onSubmit={(e) => e.preventDefault()}
-                  style={{ marginTop: 24, background: "var(--ink-0)", border: "2px solid var(--ink-900)", display: "flex" }}
-                >
-                  <input
-                    aria-label={pick(lang, bi("सेवा खोजें", "Search a service"))}
-                    placeholder={pick(lang, bi("सेवा, विभाग या दस्तावेज़ खोजें", "Search a service, department or document"))}
-                    style={{ flex: 1, border: 0, outline: 0, padding: "0 18px", height: 56, font: "var(--type-body)", color: "var(--ink-900)", background: "transparent", minWidth: 0 }}
-                  />
-                  <button type="submit" style={{ border: 0, background: "var(--blue-500)", color: "var(--ink-0)", padding: "0 24px", font: "700 15px var(--font-sans)", cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}>
-                    <Icon name="search" size="sm" />
-                    <span className="hide-narrow">{pick(lang, bi("खोजें", "Search"))}</span>
-                  </button>
-                </form>
+                <ServiceSearch />
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 16, alignItems: "center" }}>
                   <span style={{ font: "var(--type-caption)", color: "rgba(255,255,255,.75)" }}>{pick(lang, bi("लोकप्रिय:", "Popular:"))}</span>
                   {[
