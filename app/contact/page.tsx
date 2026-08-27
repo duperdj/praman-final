@@ -8,6 +8,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Callout } from "@/components/ui/Callout";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
+import { sendMessage } from "@/components/api";
 
 const OFFICES = [
   {
@@ -33,15 +34,35 @@ const OFFICES = [
 export default function ContactPage() {
   const { lang } = useLang();
   const [submitted, setSubmitted] = useState(false);
+  const [reference, setReference] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
   const [form, setForm] = useState({ name: "", phone: "", email: "", subject: "", message: "" });
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSubmitted(true);
+    setError("");
+    setBusy(true);
+    try {
+      const r = await sendMessage({
+        kind: "CONTACT",
+        name: form.name,
+        phone: form.phone,
+        email: form.email,
+        subject: form.subject,
+        body: form.message,
+      });
+      setReference(r.reference);
+      setSubmitted(true);
+    } catch {
+      setError(pick(lang, bi("संदेश भेजा नहीं जा सका। कृपया पुनः प्रयास करें।", "Could not send the message. Please try again.")));
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -117,11 +138,15 @@ export default function ContactPage() {
                 <div style={{ background: "var(--green-50, #f0fdf4)", border: "1px solid var(--green-500)", padding: "var(--space-8)", textAlign: "center" }}>
                   <Icon name="circle-check" size="lg" style={{ color: "var(--green-500)", marginBottom: 12 }} />
                   <h3 style={{ font: "var(--type-h3)", margin: "0 0 8px" }}>{pick(lang, bi("संदेश भेजा गया!", "Message sent!"))}</h3>
-                  <p style={{ font: "var(--type-body-sm)", color: "var(--ink-700)", margin: "0 0 16px" }}>
+                  <p style={{ font: "var(--type-body-sm)", color: "var(--ink-700)", margin: "0 0 8px" }}>
                     {pick(lang, bi(
-                      "आपका संदेश हमें मिल गया है। 2 कार्य दिवसों में जवाब दिया जाएगा। आपका संदर्भ नंबर: PRN-" + Math.floor(100000 + Math.random() * 900000),
-                      "Your message has been received. We will respond within 2 working days. Your reference: PRN-" + Math.floor(100000 + Math.random() * 900000)
+                      "आपका संदेश हमें मिल गया है। 2 कार्य दिवसों में जवाब दिया जाएगा।",
+                      "Your message has been received. We will respond within 2 working days."
                     ))}
+                  </p>
+                  <p style={{ font: "var(--type-body-sm)", color: "var(--ink-700)", margin: "0 0 16px" }}>
+                    {pick(lang, bi("आपका संदर्भ नंबर: ", "Your reference: "))}
+                    <b style={{ color: "var(--blue-600)", letterSpacing: 0.5 }}>{reference}</b>
                   </p>
                   <Button variant="outline" size="sm" onClick={() => setSubmitted(false)}>
                     {pick(lang, bi("नया संदेश", "Send another"))}
@@ -176,8 +201,11 @@ export default function ContactPage() {
                       style={{ border: "1.5px solid var(--border-default)", padding: "10px 14px", font: "var(--type-body)", outline: "none", width: "100%", boxSizing: "border-box", resize: "vertical" }}
                     />
                   </label>
-                  <Button type="submit" variant="primary" size="md" iconAfter="send" fullWidth>
-                    {pick(lang, bi("संदेश भेजें", "Send message"))}
+                  {error ? (
+                    <div role="alert" style={{ font: "var(--type-body-sm)", color: "var(--red-600, #c0392b)" }}>{error}</div>
+                  ) : null}
+                  <Button type="submit" variant="primary" size="md" iconAfter="send" fullWidth disabled={busy}>
+                    {busy ? pick(lang, bi("भेजा जा रहा है…", "Sending…")) : pick(lang, bi("संदेश भेजें", "Send message"))}
                   </Button>
                 </form>
               )}

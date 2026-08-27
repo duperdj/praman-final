@@ -8,6 +8,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Callout } from "@/components/ui/Callout";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
+import { sendMessage } from "@/components/api";
 
 const CATEGORIES = [
   bi("सेवा उपलब्ध नहीं / तकनीकी खराबी", "Service unavailable / technical fault"),
@@ -19,14 +20,12 @@ const CATEGORIES = [
   bi("अन्य", "Other"),
 ];
 
-function genTicket(): string {
-  return "PRN-GRV-" + Date.now().toString().slice(-7);
-}
-
 export default function ReportProblemPage() {
   const { lang } = useLang();
   const [submitted, setSubmitted] = useState(false);
   const [ticketId, setTicketId] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
   const [form, setForm] = useState({ category: "", description: "", name: "", phone: "", consent: false });
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
@@ -35,11 +34,25 @@ export default function ReportProblemPage() {
     setForm((f) => ({ ...f, [name]: value }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const t = genTicket();
-    setTicketId(t);
-    setSubmitted(true);
+    setError("");
+    setBusy(true);
+    try {
+      const r = await sendMessage({
+        kind: "GRIEVANCE",
+        name: form.name,
+        phone: form.phone,
+        subject: form.category,
+        body: form.description,
+      });
+      setTicketId(r.reference);
+      setSubmitted(true);
+    } catch {
+      setError(pick(lang, bi("शिकायत दर्ज नहीं हो सकी। कृपया पुनः प्रयास करें।", "Could not file the grievance. Please try again.")));
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -149,8 +162,11 @@ export default function ReportProblemPage() {
                 </span>
               </label>
 
-              <Button type="submit" variant="primary" size="md" iconAfter="send" fullWidth>
-                {pick(lang, bi("शिकायत दर्ज करें", "File grievance"))}
+              {error ? (
+                <div role="alert" style={{ font: "var(--type-body-sm)", color: "var(--red-600, #c0392b)" }}>{error}</div>
+              ) : null}
+              <Button type="submit" variant="primary" size="md" iconAfter="send" fullWidth disabled={busy}>
+                {busy ? pick(lang, bi("दर्ज हो रही है…", "Filing…")) : pick(lang, bi("शिकायत दर्ज करें", "File grievance"))}
               </Button>
             </form>
           )}

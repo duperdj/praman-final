@@ -176,3 +176,23 @@ export async function verifyIncome(input: { phone?: string; applicationId?: stri
   });
   return jsonOrThrow<VerifyResult>(res);
 }
+
+export type MessageInput = {
+  kind: "CONTACT" | "GRIEVANCE";
+  name: string;
+  phone: string;
+  email?: string;
+  subject: string;
+  body: string;
+};
+export type MessageResult = { reference: string; createdAt: string };
+
+/** Persist a Contact message or a grievance and get back a real reference. */
+export async function sendMessage(input: MessageInput): Promise<MessageResult> {
+  const res = await fetch("/api/messages", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  return jsonOrThrow<MessageResult>(res);
+}

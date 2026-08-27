@@ -53,7 +53,7 @@ export default function IncomeCertificateService() {
         {/* Content + aside */}
         <div className="container grid grid-main-aside" style={{ padding: "48px var(--gutter)", gap: 64, alignItems: "start" }}>
           <div>
-            <h2>{pick(lang, bi("कौन आवेदन कर सकता है", "Who can apply"))}</h2>
+            <h2 id="who-can-apply" style={{ scrollMarginTop: 88 }}>{pick(lang, bi("कौन आवेदन कर सकता है", "Who can apply"))}</h2>
             <p style={{ font: "var(--type-body)", color: "var(--ink-800)", margin: "16px 0 0", maxWidth: "66ch" }}>
               {pick(lang, bi("आप आवेदन कर सकते हैं यदि आप मध्य प्रदेश के निवासी हैं और आपकी समग्र आईडी सक्रिय है। यदि आपने इस वर्ष जिला बदला है तो पहले पता अद्यतन कराएँ।", "You can apply if you are a resident of Madhya Pradesh and your Samagra ID is active. If you changed district this year, update your address first."))}
             </p>
@@ -63,7 +63,7 @@ export default function IncomeCertificateService() {
               </Callout>
             </div>
 
-            <h2 style={{ margin: "40px 0 20px" }}>{pick(lang, bi("आपको क्या चाहिए", "What you need"))}</h2>
+            <h2 id="what-you-need" style={{ margin: "40px 0 20px", scrollMarginTop: 88 }}>{pick(lang, bi("आपको क्या चाहिए", "What you need"))}</h2>
             <div className="grid grid-2">
               <Card icon="id-card" title={pick(lang, bi("समग्र सदस्य आईडी", "Samagra member ID"))} description={pick(lang, bi("समग्र कार्ड पर 9 अंकों की संख्या।", "The 9-digit number on your Samagra card."))} />
               <Card icon="file-text" title={pick(lang, bi("आय का विवरण", "Income details"))} description={pick(lang, bi("वार्षिक आय और उसका स्रोत।", "Your annual income and its source."))} />
@@ -87,13 +87,13 @@ export default function IncomeCertificateService() {
             <div style={{ borderTop: "4px solid var(--blue-500)", borderBottom: "1px solid var(--ink-200)", padding: "16px 0" }}>
               <div style={{ font: "700 20px var(--font-sans)", color: "var(--ink-900)" }}>{pick(lang, bi("इस पृष्ठ पर", "On this page"))}</div>
               <div className="stack" style={{ gap: 8, marginTop: 12, font: "var(--type-body-sm)" }}>
-                <a href="#">{pick(lang, bi("कौन आवेदन कर सकता है", "Who can apply"))}</a>
-                <a href="#">{pick(lang, bi("आपको क्या चाहिए", "What you need"))}</a>
-                <a href="#">{pick(lang, bi("शुल्क और समय", "Fees and time"))}</a>
+                <a href="#who-can-apply">{pick(lang, bi("कौन आवेदन कर सकता है", "Who can apply"))}</a>
+                <a href="#what-you-need">{pick(lang, bi("आपको क्या चाहिए", "What you need"))}</a>
+                <a href="#fees-and-time">{pick(lang, bi("शुल्क और समय", "Fees and time"))}</a>
                 <a href="/track">{pick(lang, bi("आवेदन की स्थिति", "Track application"))}</a>
               </div>
             </div>
-            <div style={{ background: "var(--ink-50)", border: "1px solid var(--ink-200)", padding: 20 }}>
+            <div id="fees-and-time" style={{ background: "var(--ink-50)", border: "1px solid var(--ink-200)", padding: 20, scrollMarginTop: 88 }}>
               <div style={{ font: "700 16px var(--font-sans)", color: "var(--ink-900)" }}>{pick(lang, bi("शुल्क", "Fee"))}</div>
               <div className="mono" style={{ font: "800 22px var(--font-mono)", color: "var(--ink-900)", marginTop: 6 }}>{pick(lang, bi("नि:शुल्क ऑनलाइन", "Free online"))}</div>
               <div style={{ font: "var(--type-body-sm)", color: "var(--ink-600)", marginTop: 8 }}>{pick(lang, bi("लोक सेवा केंद्र पर ₹ 40।", "₹40 at a Lok Seva Kendra."))}</div>

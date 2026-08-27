@@ -25,6 +25,22 @@ datasource db {
   directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
+// Citizen-submitted messages: the Contact form (kind=CONTACT) and the
+// Report-a-problem grievance form (kind=GRIEVANCE). Persisted so the reference
+// number shown to the citizen is real and the submission is not thrown away.
+model Message {
+  id        String   @id @default(cuid())
+  kind      String // CONTACT | GRIEVANCE
+  reference String   @unique // PRN-MSG-###### / PRN-GRV-######
+  name      String
+  phone     String
+  email     String?
+  subject   String // contact: subject; grievance: category
+  body      String
+  status    String   @default("OPEN") // OPEN | IN_PROGRESS | RESOLVED
+  createdAt DateTime @default(now())
+}
+
 // Demo clock — the simulated "now" that POST /api/dev/tick advances. Persisted
 // (single row, id=1) so the statutory countdown survives across serverless
 // instances / cold starts on a cloud deploy. simulatedNow = null → real time.
