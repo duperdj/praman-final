@@ -27,6 +27,24 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   await db.slaState.update({ where: { applicationId: id }, data: { status: nextStatus } });
   await db.slaEvent.create({ data: { applicationId: id, type: approve ? "RESUMED" : "WARNED", at: new Date() } });
 
+  // Persist the officer's note as a signal on the decision so the applicant
+  // actually sees it on the status page (the field is labelled "visible to the
+  // applicant"). Replace any prior officer note so a re-decision stays clean.
+  const note = (body.note ?? "").trim();
+  if (note) {
+    await db.signal.deleteMany({ where: { decisionId: app.decision.id, ruleId: "OFFICER_NOTE" } });
+    await db.signal.create({
+      data: {
+        decisionId: app.decision.id,
+        ruleId: "OFFICER_NOTE",
+        severity: approve ? "INFO" : "WARN",
+        reasonHi: note,
+        reasonEn: note,
+        meta: JSON.stringify({ evidence: { officer: "Field officer", decidedAt: new Date().toISOString() }, weightedScore: null }),
+      },
+    });
+  }
+
   if (approve && !app.certificate) {
     const issuedAt = new Date(app.submittedAt);
     const expiresAt = new Date(issuedAt);
