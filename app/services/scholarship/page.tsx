@@ -25,7 +25,7 @@ export default function ScholarshipPage() {
         {/* Hero band with rural students */}
         <section className="hero">
           <div className="hero-media">
-            <Image src="/images/scholarship-students.jpg" alt={pick(lang, bi("पढ़ते हुए ग्रामीण विद्यार्थी", "Rural students studying"))} fill sizes="100vw" priority style={{ objectFit: "cover", objectPosition: "center 40%" }} />
+            <Image src="/images/scholarship-students.jpg" alt={pick(lang, bi("पढ़ते हुए ग्रामीण विद्यार्थी", "Rural students studying"))} fill sizes="100vw" priority quality={60} style={{ objectFit: "cover", objectPosition: "center 40%" }} />
             <div className="hero-scrim" />
           </div>
           <div style={{ position: "absolute", inset: 0 }}>

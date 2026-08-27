@@ -20,14 +20,21 @@ export default function OfficerConsole() {
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(true);
   const [owner, setOwner] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
 
   const loadQueue = useCallback(async () => {
     setLoading(true);
-    const q = await officerQueue();
-    setCases(q.queue);
-    setOwner(q.queue[0]?.currentOwner ?? "पटवारी");
-    setSelectedId((prev) => prev ?? q.queue[0]?.application.id ?? null);
-    setLoading(false);
+    setError(null);
+    try {
+      const q = await officerQueue();
+      setCases(q.queue);
+      setOwner(q.queue[0]?.currentOwner ?? "पटवारी");
+      setSelectedId((prev) => prev ?? q.queue[0]?.application.id ?? null);
+    } catch (e) {
+      setError(String(e instanceof Error ? e.message : e));
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { loadQueue(); }, [loadQueue]);
@@ -78,6 +85,14 @@ export default function OfficerConsole() {
           <div style={{ borderRight: "1px solid var(--ink-200)", padding: 16, display: "flex", flexDirection: "column", gap: 12 }}>
             {loading ? (
               <p className="muted">{pick(lang, bi("लोड हो रहा है…", "Loading…"))}</p>
+            ) : error ? (
+              <div className="stack" style={{ gap: 12 }}>
+                <p style={{ font: "var(--type-body-sm)", color: "var(--ink-700)", margin: 0 }}>
+                  {pick(lang, bi("कतार लोड नहीं हो सकी। कृपया जाँचें कि डेटाबेस कनेक्ट है।", "Couldn't load the queue. Check that the database is connected."))}
+                </p>
+                <div className="mono" style={{ font: "var(--type-caption)", color: "var(--ink-500)", wordBreak: "break-word" }}>{error}</div>
+                <Button size="sm" variant="outline" onClick={loadQueue}>{pick(lang, bi("पुनः प्रयास करें", "Retry"))}</Button>
+              </div>
             ) : cases.length === 0 ? (
               <p className="muted">{pick(lang, bi("कतार खाली है — सभी मामले निपट गए।", "Queue is clear — all cases handled."))}</p>
             ) : (

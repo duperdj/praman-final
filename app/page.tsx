@@ -29,7 +29,7 @@ export default function Home() {
         {/* Hero band */}
         <section className="hero">
           <div className="hero-media">
-            <Image src="/images/hero-mp.jpg" alt={pick(lang, bi("मध्य प्रदेश का लोक उत्सव", "A folk festival in Madhya Pradesh"))} fill sizes="100vw" priority style={{ objectFit: "cover", objectPosition: "center 30%" }} />
+            <Image src="/images/hero-mp.jpg" alt={pick(lang, bi("मध्य प्रदेश का लोक उत्सव", "A folk festival in Madhya Pradesh"))} fill sizes="100vw" priority quality={60} style={{ objectFit: "cover", objectPosition: "center 30%" }} />
             <div className="hero-scrim" />
           </div>
           <div style={{ position: "absolute", inset: 0 }}>

@@ -17,6 +17,7 @@ export function AccessibilityMenu() {
   const [large, setLarge] = useState(false);
   const [contrast, setContrast] = useState(false);
   const [speaking, setSpeaking] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const btnRef = useRef<HTMLButtonElement | null>(null);
 
@@ -91,6 +92,12 @@ export function AccessibilityMenu() {
     });
   }, []);
 
+  // Remove the widget for this page view only — a reload brings it back.
+  const dismiss = useCallback(() => {
+    setOpen(false);
+    setHidden(true);
+  }, []);
+
   const readAloud = useCallback(() => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
       alert(pick(lang, bi("आपके ब्राउज़र में वाचन उपलब्ध नहीं है।", "Read-aloud is not available in your browser.")));
@@ -127,10 +134,14 @@ export function AccessibilityMenu() {
     contrast: bi("अधिक कंट्रास्ट", "High contrast"),
     on: bi("चालू", "On"),
     off: bi("बंद", "Off"),
+    hide: bi("सुगम्यता बटन बंद करें", "Close accessibility button"),
   };
 
+  // Dismissed for this page view — reload restores it.
+  if (hidden) return null;
+
   return (
-    <div className="a11y-widget">
+    <div className="a11y-widget no-print">
       {open ? (
         <div ref={panelRef} className="a11y-panel" role="dialog" aria-label={pick(lang, t.title)}>
           <div className="a11y-panel-title">{pick(lang, t.title)}</div>
@@ -154,18 +165,31 @@ export function AccessibilityMenu() {
         </div>
       ) : null}
 
-      <button
-        ref={btnRef}
-        type="button"
-        className="a11y-fab"
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        aria-label={pick(lang, t.open)}
-        title={pick(lang, t.open)}
-        onClick={() => setOpen((v) => !v)}
-      >
-        <span aria-hidden="true">♿</span>
-      </button>
+      <div className="a11y-controls">
+        {/* Tiny cross at the button's extreme left — removes the widget for this
+            page view; a reload brings it back. */}
+        <button
+          type="button"
+          className="a11y-dismiss"
+          onClick={dismiss}
+          aria-label={pick(lang, t.hide)}
+          title={pick(lang, t.hide)}
+        >
+          <span aria-hidden="true">✕</span>
+        </button>
+        <button
+          ref={btnRef}
+          type="button"
+          className="a11y-fab"
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          aria-label={pick(lang, t.open)}
+          title={pick(lang, t.open)}
+          onClick={() => setOpen((v) => !v)}
+        >
+          <span aria-hidden="true">♿</span>
+        </button>
+      </div>
     </div>
   );
 }

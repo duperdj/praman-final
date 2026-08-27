@@ -179,6 +179,47 @@ textarea:focus-visible, [tabindex]:focus-visible {
   .grid-2, .grid-3, .grid-4, .grid-5 { grid-template-columns: 1fr; }
 }
 
+/* ── Small-screen scaling ──────────────────────────────────────────────────
+   The type scale, gutter and section rhythm are authored in fixed px. These
+   are all CSS variables, so shrinking them on small viewports makes every
+   element resize down together — fitting 320–414px phones (older iPhones,
+   Samsung) without any per-component change. Body/input stays ≥16px so iOS
+   Safari never auto-zooms fields. */
+@media (max-width: 640px) {
+  :root {
+    --gutter: var(--space-5);           /* 32 → 16 */
+    --section-y: var(--space-9);        /* 64 → 40 */
+    --section-y-tight: var(--space-8);  /* 40 → 32 */
+    --text-3xl: 33px; --text-2xl: 27px; --text-xl: 22px; --text-lg: 21px;
+    --text-base: 17px; --text-sm: 15px;
+  }
+}
+@media (max-width: 380px) {
+  :root {
+    --gutter: var(--space-4);           /* → 12 */
+    --section-y-tight: var(--space-7);
+    --text-3xl: 28px; --text-2xl: 24px; --text-xl: 21px; --text-lg: 20px;
+    --text-base: 16px; --text-sm: 14px;
+  }
+}
+
+/* Guard against any single wide element scrolling the whole page sideways on a
+   phone. Wide tables keep their own inner overflow-x:auto scroll, so this only
+   catches stray fixed-width elements — content is never clipped by it. */
+@media (max-width: 640px) {
+  html, body { overflow-x: hidden; }
+  img, svg, video, canvas { max-width: 100%; }
+}
+
+/* Section headings: nowrap + hairline on desktop, but on a phone let the heading
+   wrap and drop the hairline so a long Hindi title + "view all" link never clip. */
+@media (max-width: 560px) {
+  .sec-head { flex-wrap: wrap; gap: var(--space-3); }
+  .sec-head > h2, .sec-head > h3 { white-space: normal !important; flex: 1 1 100%; }
+  .sec-head > .sec-rule { display: none; }
+  .sec-head > a { white-space: normal; }
+}
+
 /* Header nav: full row on desktop, collapses to a menu button on mobile. */
 .nav-desktop { display: flex; gap: var(--space-7); flex: 1; align-items: center; }
 .nav-desktop-signin { display: flex; }
@@ -239,6 +280,19 @@ textarea:focus-visible, [tabindex]:focus-visible {
   display: grid; place-items: center; cursor: pointer; box-shadow: var(--shadow-dialog);
 }
 .a11y-fab:hover { background: var(--blue-600); }
+
+/* Tiny cross at the FAB's extreme-left edge — one tap removes the whole widget
+   for this page view (a reload restores it). */
+.a11y-controls { position: relative; display: inline-flex; }
+.a11y-dismiss {
+  position: absolute; left: -10px; top: 50%; transform: translateY(-50%);
+  width: 20px; height: 20px; padding: 0; border-radius: 999px; z-index: 1;
+  border: 1px solid var(--ink-400); background: var(--ink-0); color: var(--ink-700);
+  font-size: 11px; line-height: 1; display: grid; place-items: center;
+  cursor: pointer; box-shadow: var(--shadow-menu);
+}
+.a11y-dismiss:hover { background: var(--ink-100); color: var(--ink-900); }
+.a11y-dismiss:focus-visible { outline: none; box-shadow: var(--focus-shadow); }
 .a11y-fab:focus-visible { outline: none; box-shadow: var(--focus-shadow), var(--shadow-dialog); }
 .a11y-panel {
   width: 232px; background: var(--surface-page); color: var(--ink-900);

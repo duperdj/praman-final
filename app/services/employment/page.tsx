@@ -24,7 +24,7 @@ export default function EmploymentPage() {
         {/* Hero band — factory worker */}
         <section className="hero">
           <div className="hero-media">
-            <Image src="/images/employment-factory.jpg" alt={pick(lang, bi("कारखाने में कर्मचारी", "A factory worker"))} fill sizes="100vw" priority style={{ objectFit: "cover", objectPosition: "center 45%" }} />
+            <Image src="/images/employment-factory.jpg" alt={pick(lang, bi("कारखाने में कर्मचारी", "A factory worker"))} fill sizes="100vw" priority quality={60} style={{ objectFit: "cover", objectPosition: "center 45%" }} />
             <div className="hero-scrim" />
           </div>
           <div style={{ position: "absolute", inset: 0 }}>

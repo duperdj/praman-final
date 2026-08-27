@@ -16,9 +16,9 @@ export function SectionHeading({
 }) {
   const H = (`h${level}` as unknown) as "h2";
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "var(--space-6)", margin: "0 0 var(--space-7)", ...style }}>
+    <div className="sec-head" style={{ display: "flex", alignItems: "center", gap: "var(--space-6)", margin: "0 0 var(--space-7)", ...style }}>
       <H style={{ font: "var(--type-h2)", whiteSpace: "nowrap" }}>{children}</H>
-      <span style={{ flex: 1, height: "var(--border-hairline)", background: "var(--border-default)" }} />
+      <span className="sec-rule" style={{ flex: 1, height: "var(--border-hairline)", background: "var(--border-default)" }} />
       {action ? (
         <a
           href={actionHref || "#"}
